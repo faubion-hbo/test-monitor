@@ -42,7 +42,15 @@ jobs:
     needs: monitor
     runs-on: ubuntu-latest
     steps:
+      - id: construct
+        env:
+          INPUT_1: EX_INPUT_1
+          INPUT_VAL_1: "Howdy, y'all!"
+        run: |
+          echo "workflow-input-args=-f $INPUT_1=$INPUT_VAL_1" | tee -a $GITHUB_OUTPUT
+
       - env:
+          WORKFLOW_FILENAME: example-do-something.yaml
           GITHUB_TOKEN: ${{ secrets.MONITOR_ROUNDTRIP_PAT }}
         run: |
-          gh workflow -R faubion-hbo/test-workflow-caller run example-do-something.yaml
+          gh workflow -R faubion-hbo/test-workflow-caller run "$WORKFLOW_FILENAME" ${{ steps.construct.outputs.workflow-input-args }}
