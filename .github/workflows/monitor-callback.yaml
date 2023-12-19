@@ -29,4 +29,4 @@ jobs:
       - env:
           GITHUB_TOKEN: ${{ github.token }}
         run: |
-          gh workflow -R faubion-hbo/test-workflows run monitor.yaml -f LAST_WORKFLOW_NAME='tmp'
+          gh workflow -R faubion-hbo/test-monitor run monitor.yaml -f LAST_WORKFLOW_NAME='tmp'
