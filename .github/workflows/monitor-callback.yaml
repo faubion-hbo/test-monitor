@@ -1,4 +1,4 @@
-name: Monitor callback
+name: monitor-callback
 
 on:
   workflow_dispatch:
@@ -13,7 +13,7 @@ on:
         type: string
 
 jobs:
-  callback:
+  parse-and-callback:
     runs-on: ubuntu-latest
     steps:
       - env:
