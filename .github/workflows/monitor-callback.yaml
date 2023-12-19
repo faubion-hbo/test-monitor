@@ -38,13 +38,13 @@ jobs:
           echo "last-workflow-name=$(jq --raw-output '.event.workflow' <<< $GITHUB_CONTEXT | cut -d/ -f3-)" | tee -a $GITHUB_OUTPUT
           echo "completed-run-id=$(jq --raw-output '.run_id' <<< $GITHUB_CONTEXT)" | tee -a $GITHUB_OUTPUT
 
-      - name: Print run log
-        env:
-          COMPLETED_RUN_ID: ${{ steps.parse.outputs.completed-run-id }}
-          MONITORED_REPO: ${{ steps.parse.outputs.monitored-repo }}
-          GITHUB_TOKEN: ${{ secrets.CALLBACK_TOKEN }}
-        run: |
-          gh run -R "$MONITORED_REPO" view "$COMPLETED_RUN_ID" --log
+      #- name: Print run log
+      #  env:
+      #    COMPLETED_RUN_ID: ${{ steps.parse.outputs.completed-run-id }}
+      #    MONITORED_REPO: ${{ steps.parse.outputs.monitored-repo }}
+      #    GITHUB_TOKEN: ${{ secrets.CALLBACK_TOKEN }}
+      #  run: |
+      #    gh run -R "$MONITORED_REPO" view "$COMPLETED_RUN_ID" --log
 
       - name: Call monitor workflow
         env:
