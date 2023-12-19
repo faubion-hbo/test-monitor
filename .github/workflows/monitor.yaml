@@ -26,4 +26,4 @@ jobs:
       - env:
           GITHUB_TOKEN: ${{ secrets.MONITOR_ROUNDTRIP_PAT }}
         run: |
-          gh workflow -R faubion-hbo/test-workflow-caller run example-deploy.yaml
+          gh workflow -R faubion-hbo/test-workflow-caller run example-do-something.yaml
