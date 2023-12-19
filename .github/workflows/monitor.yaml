@@ -1,0 +1,29 @@
+name: monitor
+
+on:
+  workflow_dispatch:
+    inputs:
+      LAST_WORKFLOW_NAME:
+        description: "The previously ran workflow's name"
+        required: false
+        type: string
+
+jobs:
+  monitor:
+    if: inputs.LAST_WORKFLOW_NAME != ''
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          LAST_WORKFLOW_NAME: ${{ inputs.LAST_WORKFLOW_NAME }}
+        run: |
+          echo "Just ran \"$LAST_WORKFLOW_NAME\"; recording results..."
+
+  trigger:
+    if: always()
+    needs: monitor
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          gh workflow -R faubion-hbo/test-workflow-caller run example-deploy.yaml
