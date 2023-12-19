@@ -3,16 +3,35 @@ name: monitor
 on:
   workflow_dispatch:
     inputs:
+      COMPLETED_RUN_ID:
+        description: The ID of the run that was completed prior (if there was one)
+        required: false
+        type: string
       LAST_WORKFLOW_NAME:
-        description: "The previously ran workflow's name"
+        description: The name of the workflow that ran
+        required: false
+        type: string
+      MONITORED_REPO:
+        description: The repository the workflow was ran from
         required: false
         type: string
 
 jobs:
   monitor:
-    if: inputs.LAST_WORKFLOW_NAME != ''
+    if: >
+      inputs.COMPLETED_RUN_ID != ''
+      && inputs.LAST_WORKFLOW_NAME != ''
+      && inputs.MONITORED_REPO != ''
     runs-on: ubuntu-latest
     steps:
+      - name: Print run log
+        env:
+          COMPLETED_RUN_ID: ${{ inputs.COMPLETED_RUN_ID }}
+          MONITORED_REPO: ${{ inputs.MONITORED_REPO }}
+          GITHUB_TOKEN: ${{ secrets.MONITOR_ROUNDTRIP_PAT }}
+        run: |
+          gh run -R "$MONITORED_REPO" view "$COMPLETED_RUN_ID" --log
+
       - env:
           LAST_WORKFLOW_NAME: ${{ inputs.LAST_WORKFLOW_NAME }}
         run: |

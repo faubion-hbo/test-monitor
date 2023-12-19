@@ -19,10 +19,11 @@ on:
 jobs:
   parse-and-callback:
     runs-on: ubuntu-latest
+    env:
+      GITHUB_CONTEXT: ${{ inputs.GITHUB_CONTEXT }}
+      WORKFLOW_RESULTS: ${{ inputs.WORKFLOW_RESULTS }}
     steps:
-      - env:
-          GITHUB_CONTEXT: ${{ inputs.GITHUB_CONTEXT }}
-          WORKFLOW_RESULTS: ${{ inputs.WORKFLOW_RESULTS }}
+      - name: Debug
         run: |
           echo '`github` context:'
           jq '.' <<< $GITHUB_CONTEXT
@@ -30,7 +31,29 @@ jobs:
           echo 'Workflow results:'
           jq '.' <<< $WORKFLOW_RESULTS
 
-      - env:
+      - name: Parse
+        id: parse
+        run: |
+          echo "monitored-repo=$(jq --raw-output '.repository' <<< $GITHUB_CONTEXT)" | tee -a $GITHUB_OUTPUT
+          echo "last-workflow-name=$(jq --raw-output '.event.workflow' <<< $GITHUB_CONTEXT | cut -d/ -f3-)" | tee -a $GITHUB_OUTPUT
+          echo "completed-run-id=$(jq --raw-output '.run_id' <<< $GITHUB_CONTEXT)" | tee -a $GITHUB_OUTPUT
+
+      - name: Print run log
+        env:
+          COMPLETED_RUN_ID: ${{ steps.parse.outputs.completed-run-id }}
+          MONITORED_REPO: ${{ steps.parse.outputs.monitored-repo }}
           GITHUB_TOKEN: ${{ secrets.CALLBACK_TOKEN }}
         run: |
-          gh workflow -R faubion-hbo/test-monitor run monitor.yaml -f LAST_WORKFLOW_NAME='tmp'
+          gh run -R "$MONITORED_REPO" view "$COMPLETED_RUN_ID" --log
+
+      - name: Call monitor workflow
+        env:
+          COMPLETED_RUN_ID: ${{ steps.parse.outputs.completed-run-id }}
+          LAST_WORKFLOW_NAME: ${{ steps.parse.outputs.last-workflow-name }}
+          MONITORED_REPO: ${{ steps.parse.outputs.monitored-repo }}
+          GITHUB_TOKEN: ${{ secrets.CALLBACK_TOKEN }}
+        run: |
+          gh workflow -R faubion-hbo/test-monitor run monitor.yaml \
+            -f COMPLETED_RUN_ID="$COMPLETED_RUN_ID" \
+            -f LAST_WORKFLOW_NAME="$LAST_WORKFLOW_NAME" \
+            -f MONITORED_REPO="$MONITORED_REPO"
