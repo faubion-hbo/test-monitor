@@ -11,6 +11,10 @@ on:
         description: JSON blob of `needs` context
         required: true
         type: string
+      CALLBACK_TOKEN:
+        description: The token (e.g. a PAT) to be able to call back to the `faubion-hbo/test-monitor` repository
+        required: true
+        type: string
 
 jobs:
   parse-and-callback:
@@ -27,6 +31,6 @@ jobs:
           jq '.' <<< $WORKFLOW_RESULTS
 
       - env:
-          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ inputs.CALLBACK_TOKEN }}
         run: |
           gh workflow -R faubion-hbo/test-monitor run monitor.yaml -f LAST_WORKFLOW_NAME='tmp'
