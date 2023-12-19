@@ -1,0 +1,32 @@
+name: Monitor callback
+
+on:
+  workflow_dispatch:
+    inputs:
+      GITHUB_CONTEXT:
+        description: JSON blob of `github` context
+        required: true
+        type: string
+      WORKFLOW_RESULTS:
+        description: JSON blob of `needs` context
+        required: true
+        type: string
+
+jobs:
+  callback:
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          GITHUB_CONTEXT: ${{ inputs.GITHUB_CONTEXT }}
+          WORKFLOW_RESULTS: ${{ inputs.WORKFLOW_RESULTS }}
+        run: |
+          echo '`github` context:'
+          jq '.' <<< $GITHUB_CONTEXT
+          echo
+          echo 'Workflow results:'
+          jq '.' <<< $WORKFLOW_RESULTS
+
+      - env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          gh workflow -R faubion-hbo/test-workflows run monitor.yaml -f LAST_WORKFLOW_NAME='tmp'
