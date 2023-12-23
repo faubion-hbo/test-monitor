@@ -60,9 +60,9 @@ jobs:
           PREV_WORKFLOW_FILENAME: ${{ inputs.LAST_WORKFLOW_NAME }}
         run: |
           if [[ "$PREV_WORKFLOW_FILENAME" == 'test-workflow-first.yaml' ]]; then
-            echo "workflow-filename=World" | tee -a $GITHUB_OUTPUT
+            echo "workflow-filename=test-workflow-second-a.yaml" | tee -a $GITHUB_OUTPUT
           elif [[ "$PREV_WORKFLOW_FILENAME" == 'test-workflow-second-a.yaml' ]]; then
-            break
+            echo "workflow-filename=test-workflow-second-b.yaml" | tee -a $GITHUB_OUTPUT
           else
             echo "workflow-filename=test-workflow-first.yaml" | tee -a $GITHUB_OUTPUT
           fi
