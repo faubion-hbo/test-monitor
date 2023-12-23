@@ -56,4 +56,4 @@ jobs:
           touch myfile.txt
           echo "Hello=World" >> myfile.txt
           echo "Ben=Kenobi" >> myfile.txt
-          gh workflow -R faubion-hbo/test-workflow-caller run "$WORKFLOW_FILENAME" -F data=@myfile.txt ${{ steps.construct.outputs.workflow-input-args }}
+          gh workflow -R faubion-hbo/test-monitor-monitored-repo run "$WORKFLOW_FILENAME" -F data=@myfile.txt ${{ steps.construct.outputs.workflow-input-args }}
