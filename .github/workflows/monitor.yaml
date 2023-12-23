@@ -42,18 +42,34 @@ jobs:
     needs: monitor
     runs-on: ubuntu-latest
     steps:
-      - id: construct
+      #- id: construct
+      #  env:
+      #    INPUT_1: EX_INPUT_1
+      #    INPUT_VAL_1: "Howdy, y'all!"
+      #  run: |
+      #    echo "workflow-input-args=-f \"$INPUT_1=$INPUT_VAL_1\"" | tee -a $GITHUB_OUTPUT
+
+      #- id: new-file
+      #  run: |
+      #    touch myfile.txt
+      #    echo "Hello=World" >> myfile.txt
+      #    echo "Ben=Kenobi" >> myfile.txt
+
+      - id: determine-workflow
         env:
-          INPUT_1: EX_INPUT_1
-          INPUT_VAL_1: "Howdy, y'all!"
+          PREV_WORKFLOW_FILENAME: ${{ inputs.LAST_WORKFLOW_NAME }}
         run: |
-          echo "workflow-input-args=-f \"$INPUT_1=$INPUT_VAL_1\"" | tee -a $GITHUB_OUTPUT
+          if [[ "$PREV_WORKFLOW_FILENAME" == 'test-workflow-first.yaml' ]]; then
+            echo "workflow-filename=World" | tee -a $GITHUB_OUTPUT
+          elif [[ "$PREV_WORKFLOW_FILENAME" == 'test-workflow-second-a.yaml' ]]; then
+            break
+          else
+            echo "workflow-filename=test-workflow-first.yaml" | tee -a $GITHUB_OUTPUT
+          fi
 
       - env:
-          WORKFLOW_FILENAME: example-do-something.yaml
+          WORKFLOW_FILENAME: ${{ steps.determine-workflow.outputs.workflow-filename }}
           GITHUB_TOKEN: ${{ secrets.MONITOR_ROUNDTRIP_PAT }}
         run: |
-          touch myfile.txt
-          echo "Hello=World" >> myfile.txt
-          echo "Ben=Kenobi" >> myfile.txt
-          gh workflow -R faubion-hbo/test-monitor-monitored-repo run "$WORKFLOW_FILENAME" -F data=@myfile.txt ${{ steps.construct.outputs.workflow-input-args }}
+          #gh workflow -R faubion-hbo/test-monitor-monitored-repo run "$WORKFLOW_FILENAME" -F data=@myfile.txt ${{ steps.construct.outputs.workflow-input-args }}
+          gh workflow -R faubion-hbo/test-monitor-monitored-repo run "$WORKFLOW_FILENAME"
